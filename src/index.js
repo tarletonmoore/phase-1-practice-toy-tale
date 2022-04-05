@@ -12,27 +12,63 @@ document.addEventListener("DOMContentLoaded", () => {
       toyFormContainer.style.display = "none";
     }
   });
-  cardImages()
+  fetchToys()
+  let form = document.querySelector(".add-toy-form")
+  form.addEventListener("submit", handleSubmit)
 });
+function handleSubmit(event) {
+  event.preventDefault()
+  console.log(event.target[1].value)
+  const userNameInput = event.target[0].value
+  const userImageInput = event.target[1].value
 
-function cardImages() {
-  fetch("http://localhost:3000/toys")
-    .then(response => response.json())
-    .then(data => data.forEach(card => renderToys(card)))
+  let userObj = {
+    name: userNameInput,
+    image: userImageInput,
+    likes: 0
+  }
+  const configureObj = {
+    method: "POST",
+    headers:
+    {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+
+    body: JSON.stringify(userObj)
+
+  }
+  fetch("http://localhost:3000/toys", configureObj)
+
 }
-function renderToys(toys) {
-  console.log(toys)
+
+
+
+
+
+
+function fetchToys() {
+  fetch("http://localhost:3000/toys")
+
+    .then(response => response.json())
+    .then(data => data.forEach(toy => renderToys(toy)))
+}
+
+
+
+function renderToys(toy) {
+  console.log(toy)
   let collection = document.getElementById(`toy-collection`)
   let h2 = document.createElement("h2")
   // toyName = document.getElementsByClassName(`input-text`)
   let img = document.createElement("img")
-  img.src = toys.image
+  img.src = toy.image
   img.class = "toy-avatar"
 
-  h2.innerText = toys.name
+  h2.innerText = toy.name
 
   let p = document.createElement("p")
-  p.innerText = toys.likes
+  p.innerText = toy.likes
 
 
   let button = document.createElement("button")
@@ -41,8 +77,19 @@ function renderToys(toys) {
   button.innerText = "Like ❤️"
 
   button.addEventListener(`click`, () => {
-    toys.likes += 1
-    p.innerText = toys.likes
+    toy.likes += 1
+    p.innerText = toy.likes
+    fetch(`http://localhost:3000/toys/${toy.id}`, {
+      method: "PATCH",
+      headers:
+      {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+
+      body: JSON.stringify({ "likes": toy.likes })
+    })
+
   })
 
   // collection.append(h2)
